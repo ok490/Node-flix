@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NODE FLIX</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090b14;color:#fff;font-family:Arial,sans-serif}
+header{padding:20px;background:#121528;border-bottom:1px solid #39304f;position:sticky;top:0}
+.logo{font-size:27px;font-weight:900;color:#c4b5fd}
+nav{display:flex;gap:10px;margin-top:15px}
+button,input,select{font:inherit;border:0;border-radius:9px;padding:12px}
+button{background:#8b5cf6;color:white;font-weight:bold;cursor:pointer}
+nav button{flex:1}
+main{padding:18px;max-width:1200px;margin:auto}
+.hero{padding:28px 20px;border-radius:20px;background:linear-gradient(135deg,#292050,#10172c,#511b57)}
+h1{font-size:38px;margin:12px 0}
+h2{margin-top:32px}
+p{color:#b6b8cc;line-height:1.6}
+input,select{background:#1a2033;color:white;border:1px solid #39304f;width:100%;margin:5px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{background:#151a2b;border:1px solid #30364b;border-radius:13px;overflow:hidden;min-width:0}
+.art{height:115px;display:grid;place-items:center;font-size:43px;background:linear-gradient(145deg,#252b4c,#321b48)}
+.info{padding:12px}
+.name{font-size:14px;font-weight:bold;overflow-wrap:anywhere}
+.meta{color:#a5abc3;font-size:12px;margin-top:8px}
+.tag{font-size:11px;color:#d5c6ff;margin-top:8px}
+.pages{display:flex;align-items:center;justify-content:center;gap:8px;margin:25px 0;flex-wrap:wrap}
+.pages button{padding:10px}
+#status{font-size:13px;color:#b6b8cc;margin:15px 0}
+footer{text-align:center;color:#858ba5;padding:25px;font-size:12px}
+[hidden]{display:none!important}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.art{height:155px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🎬 NODE FLIX</div>
+  <nav>
+    <button onclick="show('movies')">🎬 Movies</button>
+    <button onclick="show('games')">🎮 Games</button>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div style="font-size:12px;color:#d4c2ff;letter-spacing:3px">YOUR ENTERTAINMENT UNIVERSE</div>
+    <h1>Find your next<br>obsession.</h1>
+    <p>Discover movies and explore 1,024 generated arcade cards.</p>
+    <button onclick="show('movies')">Explore Movies →</button>
+    <button onclick="show('games')">Enter Arcade 🎮</button>
+  </section>
+
+  <section id="movies">
+    <h2>🎬 Movie Collection</h2>
+    <p>Search these sample movie listings. Add a movie database API later to expand the catalog.</p>
+    <input id="ms" placeholder="Search movies..." oninput="renderMovies()">
+    <select id="genre" onchange="renderMovies()">
+      <option value="">All genres</option>
+      <option>Action</option><option>Drama</option><option>Sci-Fi</option>
+      <option>Animation</option><option>Crime</option><option>Thriller</option>
+    </select>
+    <div id="movieStatus" class="meta"></div>
+    <div id="movieGrid" class="grid"></div>
+  </section>
+
+  <section id="games" hidden>
+    <h2>⚡ NODE Arcade</h2>
+    <p>1,024 generated game mockups. These are demo cards, not hosted playable games.</p>
+    <input id="gs" placeholder="Search all 1,024 games..." oninput="gamePage=1;renderGames()">
+    <select id="cat" onchange="gamePage=1;renderGames()">
+      <option value="">All categories</option>
+      <option>Arcade</option><option>Racing</option><option>Puzzle</option>
+      <option>Adventure</option><option>Action</option><option>Strategy</option>
+    </select>
+    <div id="gameStatus" class="meta"></div>
+    <div id="gameGrid" class="grid"></div>
+    <div id="gamePages" class="pages"></div>
+  </section>
+</main>
+
+<footer>NODE FLIX · Movie discovery & arcade mockups<br>Demo website · Not affiliated with a streaming service</footer>
+
+<script>
+const movies=[
+["The Shawshank Redemption",1994,9.3,"Drama","🏆"],
+["The Godfather",1972,9.2,"Crime","🎩"],
+["The Dark Knight",2008,9.0,"Action","🦇"],
+["The Lord of the Rings",2001,8.9,"Adventure","💍"],
+["Pulp Fiction",1994,8.8,"Crime","🎞️"],
+["Forrest Gump",1994,8.8,"Drama","🏃"],
+["Interstellar",2014,8.7,"Sci-Fi","🚀"],
+["The Matrix",1999,8.7,"Sci-Fi","💊"],
+["Spirited Away",2001,8.6,"Animation","🐉"],
+["Parasite",2019,8.5,"Thriller","🎭"],
+["Gladiator",2000,8.5,"Action","⚔️"],
+["Your Name",2016,8.4,"Animation","🌠"],
+["Inception",2010,8.8,"Sci-Fi","🌀"],
+["Jurassic Park",1993,8.2,"Adventure","🦖"],
+["Titanic",1997,7.9,"Drama","🚢"],
+["Toy Story",1995,8.3,"Animation","🧸"],
+["Back to the Future",1985,8.5,"Adventure","⏰"],
+["Whiplash",2014,8.5,"Drama","🥁"],
+["Alien",1979,8.5,"Sci-Fi","👽"],
+["The Lion King",1994,8.5,"Animation","🦁"]
+];
+
+const verbs=["Neon","Turbo","Shadow","Pixel","Cosmic","Mystic","Cyber","Hyper","Retro","Quantum","Crystal","Phantom","Electric","Galaxy","Ultra","Blazing"];
+const nouns=["Runner","Quest","Drift","Jump","Blast","Racer","Warrior","Dash","Legends","Arena","Adventure","Escape","Strike","Odyssey","Survivor","Voyage"];
+const categories=["Arcade","Racing","Puzzle","Adventure","Action","Strategy"];
+const emojis=["🎮","🏎️","🧩","🚀","👾","⚡","🌌","🕹️","🏆","🐉","🔥","🎯"];
+
+// Seeded random generator makes the same 1,024 cards on each visit.
+function randomGen(seed){return()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}}
+const rand=randomGen(1024);
+const games=Array.from({length:1024},(_,i)=>({
+ id:i+1,
+ name:verbs[Math.floor(rand()*verbs.length)]+" "+nouns[Math.floor(rand()*nouns.length)]+" "+(i+1),
+ category:categories[Math.floor(rand()*categories.length)],
+ emoji:emojis[Math.floor(rand()*emojis.length)]
+}));
+
+let gamePage=1;
+const perPage=24;
+const $=id=>document.getElementById(id);
+
+function show(section){
+ $("movies").hidden=section!=="movies";
+ $("games").hidden=section!=="games";
+ window.scrollTo({top:0,behavior:"smooth"});
+ if(section==="games")renderGames();
+}
+
+function renderMovies(){
+ const q=$("ms").value.trim().toLowerCase();
+ const g=$("genre").value;
+ const list=movies.filter(m=>
+   m[0].toLowerCase().includes(q)&&(!g||m[3]===g)
+ );
+ $("movieStatus").textContent=list.length+" sample movies";
+ $("movieGrid").innerHTML=list.map(m=>`
+  <article class="card">
+   <div class="art">${m[4]}</div>
+   <div class="info">
+    <div class="name">${m[0]}</div>
+    <div class="meta">${m[1]} · ★ ${m[2]}</div>
+    <div class="tag">${m[3]}</div>
+   </div>
+  </article>`).join("")||"<p>No movies found.</p>";
+}
+
+function renderGames(){
+ const q=$("gs").value.trim().toLowerCase();
+ const c=$("cat").value;
+ const list=games.filter(g=>g.name.toLowerCase().includes(q)&&(!c||g.category===c));
+ const pages=Math.max(1,Math.ceil(list.length/perPage));
+ gamePage=Math.min(gamePage,pages);
+ const visible=list.slice((gamePage-1)*perPage,gamePage*perPage);
+ $("gameStatus").textContent=list.length+" games · Page "+gamePage+" of "+pages;
+ $("gameGrid").innerHTML=visible.map(g=>`
+  <article class="card">
+   <div class="art">${g.emoji}</div>
+   <div class="info">
+    <div class="name">${g.name}</div>
+    <div class="meta">Card #${g.id}</div>
+    <div class="tag">${g.category} · MOCKUP</div>
+   </div>
+  </article>`).join("")||"<p>No games found.</p>";
+ $("gamePages").innerHTML="";
+ const add=(label,p,disabled)=>{
+  const b=document.createElement("button");
+  b.textContent=label;b.disabled=disabled;
+  b.onclick=()=>{gamePage=p;renderGames()};
+  $("gamePages").appendChild(b);
+ };
+ add("←",gamePage-1,gamePage===1);
+ const label=document.createElement("span");
+ label.textContent=gamePage+" / "+pages;
+ $("gamePages").appendChild(label);
+ add("→",gamePage+1,gamePage===pages);
+}
+renderMovies();
+renderGames();
+</script>
+</body>
+</html>
